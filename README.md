@@ -64,10 +64,10 @@ scanning.
 
 ## JMBG Format
 
-13 digits, `DDMMYYYRRBBBC`: day, month, year (last 3 digits; `YYY < 800` →
-2000s, otherwise 1900s), region code, unique number (000–499 male, 500–999
-female), and a modulo-11 check digit (intermediate value 10 or 11 → check
-digit 0).
+13 digits, `DDMMYYYRRBBBC`: day, month, year (last 3 digits; `800–999` →
+1800–1999, `000–099` → 2000–2099, anything between is rejected as an invalid
+date), region code, unique number (000–499 male, 500–999 female), and a
+modulo-11 check digit (intermediate value 10 or 11 → check digit 0).
 
 ## Development
 

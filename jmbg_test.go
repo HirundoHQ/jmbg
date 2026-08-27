@@ -47,6 +47,10 @@ func TestParseErrors(t *testing.T) {
 		{"arabic-indic digit", "01019907100٩", ErrDigits},
 		{"day out of range", "3201990710009", ErrDate},
 		{"feb 29 in non-leap year", "2902979758318", ErrDate},
+		// YYY 100-799 was never issued: it would place the birth in 2100-2799.
+		{"year digits 100", "0101100710000", ErrDate},
+		{"year digits 500", "0101500710005", ErrDate},
+		{"year digits 799", "0101799710004", ErrDate},
 		{"unknown region", "0710003660015", ErrRegion},
 		// Intermediate control value 10 or 11 requires check digit 0.
 		{"checksum: intermediate value 8, wrong digit", "0710003730025", ErrChecksum},
@@ -239,6 +243,11 @@ func TestYearCalculation(t *testing.T) {
 	}{
 		{"2000s", "0101000710009", 2000},
 		{"1900s", "1705978730032", 1978},
+		// The two ends of each window, so a change to the mapping cannot pass
+		// unnoticed.
+		{"2000s upper bound", "0101099710005", 2099},
+		{"1800s lower bound", "0101800710007", 1800},
+		{"1900s upper bound", "0101999710000", 1999},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

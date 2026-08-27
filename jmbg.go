@@ -55,10 +55,18 @@ func Parse(input string) (JMBG, error) {
 	bbb := digit(9)*100 + digit(10)*10 + digit(11)
 	c := digit(12)
 
-	// Determine full year
-	year := 1000 + yyy
-	if yyy < 800 {
+	// Determine full year. YYY are the last three digits: 800-999 map to
+	// 1800-1999 and 000-099 to 2000-2099. Nothing between has ever been
+	// issued — 100-799 would place the birth in 2100-2799, so it is a
+	// malformed date rather than a distant one.
+	var year int
+	switch {
+	case yyy >= 800:
+		year = 1000 + yyy
+	case yyy <= 99:
 		year = 2000 + yyy
+	default:
+		return JMBG{}, fmt.Errorf("%w: year digits '%03d'", ErrDate, yyy)
 	}
 
 	// Validate date
