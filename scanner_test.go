@@ -115,7 +115,14 @@ func TestScanPropagatesReadError(t *testing.T) {
 }
 
 func TestScannerGzipCaveat(t *testing.T) {
-	const body = "JMBG: 0710003730015"
+	// The body has to be long enough that deflate actually compresses it.
+	// Below roughly 262 bytes it emits a stored — uncompressed — block, and
+	// the digits then survive verbatim in the "compressed" bytes, where the
+	// scanner duly finds them. That is a real property of small gzip bodies,
+	// documented in the README; it is not what this test is about.
+	const repeats = 50
+	body := strings.Repeat("JMBG: 0710003730015\n", repeats)
+
 	var compressed bytes.Buffer
 	zw := gzip.NewWriter(&compressed)
 	if _, err := zw.Write([]byte(body)); err != nil {
@@ -123,6 +130,11 @@ func TestScannerGzipCaveat(t *testing.T) {
 	}
 	if err := zw.Close(); err != nil {
 		t.Fatal(err)
+	}
+	if compressed.Len() >= len(body) {
+		t.Fatalf("body did not compress (%d bytes in, %d out): too small for "+
+			"deflate to do anything, so the rest of this test proves nothing",
+			len(body), compressed.Len())
 	}
 
 	// Raw compressed bytes hide the digits from the scanner.
@@ -143,8 +155,13 @@ func TestScannerGzipCaveat(t *testing.T) {
 	if err := Scan(zr, func(m Match) { got = append(got, m) }); err != nil {
 		t.Fatal(err)
 	}
-	if len(got) != 1 || got[0].JMBG.String() != "0710003730015" {
-		t.Errorf("matches through gzip.Reader = %v, want one 0710003730015", got)
+	if len(got) != repeats {
+		t.Fatalf("matches through gzip.Reader = %d, want %d", len(got), repeats)
+	}
+	for i, m := range got {
+		if m.JMBG.String() != "0710003730015" {
+			t.Errorf("match %d = %s, want 0710003730015", i, m.JMBG)
+		}
 	}
 }
 

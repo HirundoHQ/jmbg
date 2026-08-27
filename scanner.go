@@ -26,13 +26,13 @@ type Match struct {
 //
 // A Scanner must not be used from multiple goroutines concurrently.
 type Scanner struct {
-	found  func(Match)
-	run    [13]byte // first bytes of the current digit run
-	runLen int      // true length of the current run
-	pos    int64    // bytes consumed so far
+	found func(Match)
+	run   digitRun
 }
 
-// NewScanner returns a Scanner that calls found for every valid JMBG.
+// NewScanner returns a Scanner that calls found for every valid JMBG. found
+// must not be nil: the nil call would surface only on the first JMBG in the
+// stream, which is to say in production.
 func NewScanner(found func(Match)) *Scanner {
 	return &Scanner{found: found}
 }
@@ -41,39 +41,40 @@ func NewScanner(found func(Match)) *Scanner {
 // always returns len(p) and a nil error.
 func (s *Scanner) Write(p []byte) (int, error) {
 	for i, c := range p {
-		if c >= '0' && c <= '9' {
-			if s.runLen < len(s.run) {
-				s.run[s.runLen] = c
-			}
-			s.runLen++
-		} else {
-			s.endRun(s.pos + int64(i))
+		if isDigit(c) {
+			s.run.push(c)
+			continue
+		}
+		// Most bytes are non-digits with no run in progress. Keep that path
+		// to inlined comparisons — end returns a Match by value, far too
+		// heavy to pay per byte.
+		if s.run.empty() {
+			continue
+		}
+		if !s.run.complete() {
+			s.run.reset()
+			continue
+		}
+		if m, ok := s.run.end(s.run.pos + int64(i)); ok {
+			s.found(m)
 		}
 	}
-	s.pos += int64(len(p))
+	s.run.pos += int64(len(p))
 	return len(p), nil
 }
 
 // Close ends the stream, checking a digit run that touches the final byte.
 // It always returns nil.
 func (s *Scanner) Close() error {
-	s.endRun(s.pos)
+	if m, ok := s.run.end(s.run.pos); ok {
+		s.found(m)
+	}
 	return nil
 }
 
-// endRun terminates the current digit run, which ends just before the given
-// stream offset.
-func (s *Scanner) endRun(end int64) {
-	if s.runLen == len(s.run) {
-		if j, err := Parse(string(s.run[:])); err == nil {
-			s.found(Match{JMBG: j, Offset: end - int64(len(s.run))})
-		}
-	}
-	s.runLen = 0
-}
-
 // Scan reads r until EOF and calls found for every valid JMBG in the stream.
-// It needs only constant memory regardless of stream size.
+// It needs only constant memory regardless of stream size. found must not be
+// nil, as for NewScanner.
 func Scan(r io.Reader, found func(Match)) error {
 	s := NewScanner(found)
 	if _, err := io.Copy(s, r); err != nil {

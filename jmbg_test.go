@@ -47,6 +47,13 @@ func TestParseErrors(t *testing.T) {
 		{"arabic-indic digit", "01019907100٩", ErrDigits},
 		{"day out of range", "3201990710009", ErrDate},
 		{"feb 29 in non-leap year", "2902979758318", ErrDate},
+		// YYY 100-799 was never issued: it would place the birth in
+		// 2100-2799. Each of these is otherwise a well-formed JMBG — real
+		// calendar date, known region, correct check digit — so only the
+		// year window can reject it.
+		{"year digits 100", "0101100710006", ErrDate},
+		{"year digits 500", "0101500710005", ErrDate},
+		{"year digits 799", "0101799710006", ErrDate},
 		{"unknown region", "0710003660015", ErrRegion},
 		// Intermediate control value 10 or 11 requires check digit 0.
 		{"checksum: intermediate value 8, wrong digit", "0710003730025", ErrChecksum},
@@ -239,12 +246,44 @@ func TestYearCalculation(t *testing.T) {
 	}{
 		{"2000s", "0101000710009", 2000},
 		{"1900s", "1705978730032", 1978},
+		// Both ends of both windows, so narrowing the mapping any further
+		// cannot pass unnoticed.
+		{"2000s upper bound", "0101099710005", 2099},
+		{"1800s lower bound", "0101800710007", 1800},
+		{"1900s upper bound", "0101999710000", 1999},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			j := mustParse(t, tt.input)
 			if got := j.BirthDate().Year(); got != tt.want {
 				t.Errorf("BirthDate().Year() = %d, want %d", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestParseErrorDetail(t *testing.T) {
+	// Parse adds detail on top of the bare sentinels parseDigits returns. A
+	// year outside both windows has no year to print, so it names the digits.
+	tests := []struct {
+		name  string
+		input string
+		want  string
+	}{
+		{"impossible calendar date", "3201990710009", "'32/01/1990'"},
+		{"year outside both windows", "0101500710005", "year digits '500'"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := Parse(tt.input)
+			if err == nil {
+				t.Fatalf("Parse(%q): expected an error", tt.input)
+			}
+			if !errors.Is(err, ErrDate) {
+				t.Fatalf("Parse(%q) = %v, want ErrDate", tt.input, err)
+			}
+			if !strings.Contains(err.Error(), tt.want) {
+				t.Errorf("Parse(%q) = %q, want it to mention %q", tt.input, err, tt.want)
 			}
 		})
 	}
