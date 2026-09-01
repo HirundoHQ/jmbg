@@ -1,3 +1,3 @@
-module github.com/osiguraj-lako/jmbg
+module github.com/hirundohq/jmbg
 
-go 1.24
+go 1.27

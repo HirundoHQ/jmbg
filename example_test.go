@@ -7,7 +7,7 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/osiguraj-lako/jmbg"
+	"github.com/hirundohq/jmbg"
 )
 
 // Example shows the whole lifecycle of a JMBG: parsing it, round-tripping

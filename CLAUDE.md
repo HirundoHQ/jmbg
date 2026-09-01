@@ -18,7 +18,7 @@ go test -run '^$' -fuzz FuzzScanner -fuzztime 30s   # fuzz (FuzzParse, FuzzScann
 
 ## Architecture
 
-Single Go package at the repo root (`package jmbg`), module `github.com/osiguraj-lako/jmbg`.
+Single Go package at the repo root (`package jmbg`), module `github.com/hirundohq/jmbg`.
 
 **Zero external dependencies is a hard constraint.** `go.mod` has no `require` block and must keep none — the user has ruled out adding dependencies to this module. Verify with `go list -deps .` after any change.
 

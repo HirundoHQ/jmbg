@@ -6,7 +6,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/osiguraj-lako/jmbg"
+	"github.com/hirundohq/jmbg"
 )
 
 // TestErrZeroIsReachableFromConsumers is the point of exporting ErrZero:

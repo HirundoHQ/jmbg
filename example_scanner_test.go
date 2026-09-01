@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"strings"
 
-	"github.com/osiguraj-lako/jmbg"
+	"github.com/hirundohq/jmbg"
 )
 
 func ExampleScan() {

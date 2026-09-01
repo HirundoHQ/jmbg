@@ -17,13 +17,13 @@ A Go library for validating and parsing Serbian unique master citizen numbers (J
 ## Installation
 
 ```bash
-go get github.com/osiguraj-lako/jmbg
+go get github.com/hirundohq/jmbg
 ```
 
 ## Usage
 
 ```go
-import "github.com/osiguraj-lako/jmbg"
+import "github.com/hirundohq/jmbg"
 
 if jmbg.Valid("0101000710009") {
     fmt.Println("valid")
