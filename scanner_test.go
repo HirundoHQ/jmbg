@@ -55,7 +55,7 @@ func TestScanner(t *testing.T) {
 		{"separated digits", "0710003 730015", nil},
 		// Candidates still go through full validation.
 		{"invalid checksum", "0710003730025", nil},
-		{"invalid region", "0710003660015", nil},
+		{"invalid region", "0710003600014", nil},
 		// A JSON number drops a leading zero; deliberately not recovered.
 		{"leading zero lost in json number", `{"jmbg":101000710009}`, nil},
 		{"empty input", "", nil},

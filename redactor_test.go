@@ -61,7 +61,7 @@ func TestRedactor(t *testing.T) {
 		{"16-digit card number", "4111111111111111", "4111111111111111", nil},
 		{"12 digits", "071000373001", "071000373001", nil},
 		{"invalid checksum", "0710003730025", "0710003730025", nil},
-		{"unknown region", "0710003660015", "0710003660015", nil},
+		{"unknown region", "0710003600014", "0710003600014", nil},
 		// Offsets are byte offsets and non-ASCII bytes pass through as-is.
 		{
 			"multibyte text around", "Perić: 0710003730015 (Perić)",

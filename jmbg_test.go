@@ -54,7 +54,7 @@ func TestParseErrors(t *testing.T) {
 		{"year digits 100", "0101100710006", ErrDate},
 		{"year digits 500", "0101500710005", ErrDate},
 		{"year digits 799", "0101799710006", ErrDate},
-		{"unknown region", "0710003660015", ErrRegion},
+		{"unknown region", "0710003600014", ErrRegion},
 		// Intermediate control value 10 or 11 requires check digit 0.
 		{"checksum: intermediate value 8, wrong digit", "0710003730025", ErrChecksum},
 		{"checksum: intermediate value 10, digit 1", "0101990710131", ErrChecksum},
@@ -111,6 +111,10 @@ func TestRegions(t *testing.T) {
 			Region{6, "foreigners in Serbia", "foreign citizens"},
 		},
 		{"Pljevlja and Žabljak", "0101990290017", Region{29, "Pljevlja, Žabljak", "Montenegro"}},
+		{
+			"EBS, foreigners without permanent residence", "0101990660019",
+			Region{66, "foreigners in Serbia without permanent residence (EBS)", "foreign citizens"},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

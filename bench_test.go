@@ -106,7 +106,7 @@ func BenchmarkParse(b *testing.B) {
 	cases := []struct{ name, input string }{
 		{"valid", "0710003730015"},
 		{"invalid-date", "9999999999999"},
-		{"invalid-region", "0710003660015"},
+		{"invalid-region", "0710003600014"},
 		{"invalid-checksum", "0710003730025"},
 	}
 	for _, c := range cases {

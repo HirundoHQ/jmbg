@@ -77,6 +77,11 @@ var regions = map[int]Region{
 	49: {49, "Štip", countryMacedonia},
 	// Slovenia
 	50: {50, "Slovenia", countrySlovenia},
+	// Serbia: evidencijski broj stranca (EBS). The Law on Foreigners, art. 7,
+	// gives it the JMBG structure with register 06 for permanent residents and
+	// asylees (already listed above) and register 66 for every other foreigner,
+	// which is where temporary residence falls.
+	66: {66, "foreigners in Serbia without permanent residence (EBS)", countryForeign},
 	// Serbia
 	70: {70, "citizens registered abroad at a diplomatic/consular post", countrySerbia},
 	71: {71, "Belgrade", countrySerbia},

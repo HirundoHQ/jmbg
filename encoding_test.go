@@ -53,7 +53,7 @@ func TestJSONUnmarshalInvalid(t *testing.T) {
 	}{
 		{"bad checksum", `{"jmbg":"0710003730025"}`, ErrChecksum},
 		{"too short", `{"jmbg":"123"}`, ErrLength},
-		{"unknown region", `{"jmbg":"0710003660015"}`, ErrRegion},
+		{"unknown region", `{"jmbg":"0710003600014"}`, ErrRegion},
 		{"not digits", `{"jmbg":"01019907100ab"}`, ErrDigits},
 		{"bad date", `{"jmbg":"3201990710009"}`, ErrDate},
 	}
@@ -204,7 +204,7 @@ func TestSQLScanInvalidValue(t *testing.T) {
 		{"string, bad checksum", "0710003730025", ErrChecksum},
 		{"bytes, bad checksum", []byte("0710003730025"), ErrChecksum},
 		{"string, too short", "123", ErrLength},
-		{"bytes, unknown region", []byte("0710003660015"), ErrRegion},
+		{"bytes, unknown region", []byte("0710003600014"), ErrRegion},
 	}
 
 	for _, tt := range tests {

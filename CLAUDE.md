@@ -46,7 +46,7 @@ Format rules that are easy to get wrong:
 
 - **Year:** `YYY >= 800` → `1000+YYY` (1800–1999), `YYY <= 099` → `2000+YYY` (2000–2099). **100–799 is `ErrDate`** — it would place the birth in 2100–2799, which was never issued. `yearAt` returns `(year, ok)` and only `Parse` formats the reason, so the rejection stays off the streaming path.
 - **Checksum:** modulo 11 with weights `7 6 5 4 3 2` twice; an intermediate value of 10 or 11 means the check digit is **0**, not 10/11.
-- **Region:** `regions.go` is the authority — a code missing from the map is `ErrRegion`. Codes cover all ex-Yugoslav republics plus foreign-citizen codes 0–9.
+- **Region:** `regions.go` is the authority — a code missing from the map is `ErrRegion`. Codes cover all ex-Yugoslav republics plus foreign-citizen codes 0–9 and 66. Code 66 is Serbia's *evidencijski broj stranca* (EBS) for foreigners without permanent residence — legally not a JMBG, but the Law on Foreigners (art. 7) gives it the same structure, so it parses as one. No unassigned code may be used as an "unknown region" fixture without checking this table; the tests use 60.
 
 **`digitRun` (`digitrun.go`)** is the detection state machine both `Scanner` and `Redactor` drive, so "what counts as a JMBG in a byte stream" — run length, validation, offset arithmetic — is defined once. `digitsInJMBG` is that single length, and `redactionMask` derives its width from it, so the two cannot drift apart. Change detection here, not in either caller.
 
